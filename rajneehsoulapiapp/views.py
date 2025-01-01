@@ -143,15 +143,3 @@ def compress_string_view(request):
         },
         status=status.HTTP_200_OK
     )
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_content():
-    try:
-        # Fetch all content records
-        content = Content.objects.all()
-        # Serialize the data
-        serializer = ContentSerializer(content, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

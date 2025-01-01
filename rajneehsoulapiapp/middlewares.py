@@ -18,8 +18,6 @@ def _get_encryption_key():
 
 
 class EncryptResponseMiddleware:
-    print("1" * 100)  # Debug to ensure middleware initialization
-
     def __init__(self, get_response):
         self.get_response = get_response
         self.key = _get_encryption_key()
