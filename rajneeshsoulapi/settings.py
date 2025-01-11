@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-zs7xkez9=#5*dsw-3m*&yfd&s9wlnzlh6#xqrp$ls#3s!%ausz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['10.0.2.2', '127.0.0.1']
+ALLOWED_HOSTS = ['10.0.2.2', '127.0.0.1', 'taskbreezeapi.pythonanywhere.com']
 
 
 # Application definition
@@ -51,8 +51,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'rajneehsoulapiapp.RequestDecryptMiddleware.DecryptRequestMiddleware',
-    'rajneehsoulapiapp.middlewares.EncryptResponseMiddleware'
+    #'rajneehsoulapiapp.RequestDecryptMiddleware.DecryptRequestMiddleware',
+    #'rajneehsoulapiapp.middlewares.EncryptResponseMiddleware'
 ]
 
 ROOT_URLCONF = 'rajneeshsoulapi.urls'
@@ -183,4 +183,4 @@ DRFSO2_URL_NAMESPACE = 'drf'
 NAMESPACE = 'oauth2'
 
 ENCRYPTION_KEY = "SOUL01100"
-ENCRYPTION_DISABLED_PATHS = ["/decrypt/", "/encrypt/"]
+ENCRYPTION_DISABLED_PATHS = ["/decrypt/", "/encrypt/", "/auth/convert-token/"]
