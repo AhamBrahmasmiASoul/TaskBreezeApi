@@ -4,6 +4,7 @@ from rajneehsoulapiapp.before_login.models import *
 from rajneehsoulapiapp.login.models import CustomUser, AuthToken, CustomUserProfile, MobileRegistration
 from rajneehsoulapiapp.models import Content
 from rajneehsoulapiapp.schedule_list.models import ScheduleItemList, ItemType
+from .lists.split_expenses.models import *
 from .post_login.models import *
 
 
@@ -163,3 +164,37 @@ class WeatherNotificationAdmin(admin.ModelAdmin):
     list_display = ['info']
     search_fields = ['info']
 
+
+@admin.register(ExpenseItem)
+class ExpenseItemAdmin(admin.ModelAdmin):
+    list_display = ('i_name', 'i_amt', 'i_qty', 'date_time', 'is_settled', 'collaborator')
+    list_filter = ('is_settled', 'date_time', 'collaborator')
+    search_fields = ('i_name', 'i_desp', 'collaborator__collab_user', 'collaborator__collab_google_auth_user')
+    date_hierarchy = 'date_time'
+
+
+class GroupExpenseAdmin(admin.ModelAdmin):
+    list_display = (
+        'grp_name',
+        't_item',
+        't_amt',
+        'last_settled_date_time',
+        'created_by_user',
+        'created_by_google_auth_user',
+    )
+
+
+class CollaboratorDetailAdmin(admin.ModelAdmin):
+    list_display = ('collab_user', 'collab_google_auth_user', 'status', 'group_expense_id')
+    list_filter = ('status', 'group_expense_id')
+    search_fields = (
+        'collab_user__mobile_number',
+        'collab_google_auth_user__username',
+        'group_expense__grp_name',
+        'settle_mode', 'settle_medium',
+    )
+
+
+# Registering models with respective admin classes
+admin.site.register(CollaboratorDetail, CollaboratorDetailAdmin)
+admin.site.register(GroupExpense, GroupExpenseAdmin)
