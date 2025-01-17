@@ -4,7 +4,7 @@ from firebase_admin import *
 from notification_utils import check_date_difference, find_datetime_range
 from rajneehsoulapiapp.communication.mail import send_email_anonymous
 
-api_address = "https://api.openweathermap.org/data/2.5/forecast?appid=61d38a3c289f168e130b1fa745c9a37c&q="
+api_address = "https://api.openweathermap.org/data/2.5/forecast?appid="
 
 url = api_address + "Gurugram"
 
