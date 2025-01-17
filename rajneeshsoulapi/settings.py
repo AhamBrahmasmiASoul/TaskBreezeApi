@@ -184,7 +184,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_URL_NAMESPACE = 'google'
 DRFSO2_URL_NAMESPACE = 'drf'
 NAMESPACE = 'oauth2'
 
-ENCRYPTION_KEY = "SOUL01100"
+ENCRYPTION_KEY = ""
 ENCRYPTION_DISABLED_PATHS = ["/decrypt/", "/encrypt/", "/auth/convert-token/"]
 
 
