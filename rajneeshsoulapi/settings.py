@@ -194,5 +194,5 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'teamtaskbreeze@gmail.com'  # Your email
-EMAIL_HOST_PASSWORD = 'hvuygwwsprvuaxid'  # Your email password or app-specific password
+EMAIL_HOST_PASSWORD = ''  # Your email password or app-specific password
 DEFAULT_FROM_EMAIL = 'rajneeshsharma199@gmail.com'
