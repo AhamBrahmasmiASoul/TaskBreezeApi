@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 
+import rajneeshsoulapi
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -184,3 +186,13 @@ NAMESPACE = 'oauth2'
 
 ENCRYPTION_KEY = "SOUL01100"
 ENCRYPTION_DISABLED_PATHS = ["/decrypt/", "/encrypt/", "/auth/convert-token/"]
+
+
+# settings.py
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'teamtaskbreeze@gmail.com'  # Your email
+EMAIL_HOST_PASSWORD = 'hvuygwwsprvuaxid'  # Your email password or app-specific password
+DEFAULT_FROM_EMAIL = 'rajneeshsharma199@gmail.com'

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f4f6;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 30px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(90deg, #4caf50, #81c784);
+            padding: 16px;
+            text-align: center;
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .content {
+            padding: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #555555;
+        }
+        .content p {
+            margin: 16px 0;
+        }
+        .cta-button {
+            display: inline-block;
+            margin: 20px 0;
+            padding: 12px 20px;
+            background-color: #4caf50;
+            color: #ffffff;
+            font-size: 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .cta-button:hover {
+            background-color: #388e3c;
+        }
+        .footer {
+            background-color: #f3f4f6;
+            text-align: center;
+            padding: 15px;
+            font-size: 14px;
+            color: #888888;
+            border-top: 1px solid #e0e0e0;
+        }
+        .footer a {
+            color: #4caf50;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            Welcome to TaskBreeze !
+        </div>
+        <div class="content">
+            <p>Hello <strong>{{ user.first_name }} {{ user.last_name }}</strong>,</p>
+            <p>Thank you for joining TaskBreeze. We are thrilled to have you on board and can't wait to help you breeze through your tasks!</p>
+            <p>If you have any questions, feel free to <a href="mailto:teamtaskbreeze@gmail.com">contact us</a>. We are always here to help!</p>
+            <p>Best Regards,<br><strong>The TaskBreeze Team</strong></p>
+        </div>
+        <div class="footer">
+            &copy; 2025 TaskBreeze. All rights reserved.<br>
+            <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a>
+        </div>
+    </div>
+</body>
+</html>
