@@ -44,7 +44,7 @@ class CollaboratorDetail(models.Model):
     redirect_upi_url = models.URLField(null=True, blank=True)  # For gPay/UPI link, etc.
     settle_mode = models.CharField(max_length=50, default=None, null=True)  # Example: ONLINE, CASH
     settle_medium = models.CharField(max_length=50, default=None, null=True)  # Example: UPI, PayPal
-    group_expense_id = models.ForeignKey(
+    group_id = models.ForeignKey(
         'GroupExpense',
         on_delete=models.CASCADE,
         related_name='collaborators'

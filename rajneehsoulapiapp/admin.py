@@ -185,12 +185,12 @@ class GroupExpenseAdmin(admin.ModelAdmin):
 
 
 class CollaboratorDetailAdmin(admin.ModelAdmin):
-    list_display = ('collab_user', 'collab_google_auth_user', 'status', 'group_expense_id')
-    list_filter = ('status', 'group_expense_id')
+    list_display = ('collab_user', 'collab_google_auth_user', 'status', 'group_id')
+    list_filter = ('status', 'group_id')
     search_fields = (
         'collab_user__mobile_number',
         'collab_google_auth_user__username',
-        'group_expense__grp_name',
+        'group__grp_name',
         'settle_mode', 'settle_medium',
     )
 

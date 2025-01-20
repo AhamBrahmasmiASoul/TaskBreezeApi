@@ -5,7 +5,8 @@ from .models import ExpenseItem, CollaboratorDetail, GroupExpense
 class ExpenseItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExpenseItem
-        exclude = ["collaborator"]  # Exclude the collab_user field
+        fields = '__all__'
+        #exclude = ["collaborator"]  # Exclude the collab_user field
 
 class CollaboratorDetailSerializer(serializers.ModelSerializer):
     expenses = ExpenseItemSerializer(many=True, read_only=True)  # Fetch related expenses
