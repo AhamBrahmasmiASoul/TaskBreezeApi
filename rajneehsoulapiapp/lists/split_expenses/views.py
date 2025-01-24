@@ -7,21 +7,31 @@ from .models import GroupExpense, CollaboratorDetail, ExpenseItem
 from .serializers import GroupExpenseSerializer, CollaboratorDetailSerializer, ExpenseItemSerializer
 from ...CustomAuthentication import CustomAuthentication
 
+# Utility function to get user_object
+def get_user_object(request):
+    user = request.user
+    if "Bearer" not in request.headers.get("Authorization", ""):
+        return user.userMobileLinked_id
+    return user.id
 
-class GroupExpenseView(APIView):
-    authentication_classes = [CustomAuthentication]  # Use the custom authentication class
+# Mixin for user validation
+class UserValidationMixin:
+    @ staticmethod
+    def validate_user(request):
+        user_object = get_user_object(request)
+        if user_object is None:
+            return Response({"error": "Invalid user"}, status=status.HTTP_401_UNAUTHORIZED)
+        return user_object
+
+# GroupExpenseView
+class GroupExpenseView(APIView, UserValidationMixin):
+    authentication_classes = [CustomAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, group_id=None):
-        user = request.user
-        if not user:
-            return Response({"error": "Invalid user"}, status=status.HTTP_401_UNAUTHORIZED)
-        
-        if "Bearer" not in request.headers["Authorization"]:
-            user_object = user.userMobileLinked_id
-        else:
-            user_object = user.id
-        
+        user_object = self.validate_user(request)
+        if isinstance(user_object, Response):
+            return user_object
 
         if group_id:
             group = get_object_or_404(GroupExpense, id=group_id, created_by_user=user_object)
@@ -33,16 +43,9 @@ class GroupExpenseView(APIView):
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request):
-        user = request.user
-        if not user:
-            return Response({"error": "Invalid user"}, status=status.HTTP_401_UNAUTHORIZED)
-
-        if "Bearer" not in request.headers["Authorization"]:
-            user_object = user.userMobileLinked_id
-        else:
-            user_object = user.id
-
-        print("userObject: ", type(user_object))
+        user_object = self.validate_user(request)
+        if isinstance(user_object, Response):
+            return user_object
 
         serializer = GroupExpenseSerializer(data=request.data)
         if serializer.is_valid():
@@ -54,58 +57,41 @@ class GroupExpenseView(APIView):
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, group_id=None):
-        print("group-expense-patch"*10)
-        user = request.user
-        if not user:
-            return Response({"error": "Invalid user"}, status=status.HTTP_401_UNAUTHORIZED)
+        user_object = self.validate_user(request)
+        if isinstance(user_object, Response):
+            return user_object
 
         if not group_id:
             return Response({"error": "Provide group id"}, status=status.HTTP_400_BAD_REQUEST)
-
-        if "Bearer" not in request.headers["Authorization"]:
-            user_object = user.userMobileLinked_id
-        else:
-            user_object = user.id
 
         group = get_object_or_404(GroupExpense, id=group_id, created_by_user_id=user_object)
         serializer = GroupExpenseSerializer(group, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            print("saved"*100)
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, group_id=None):
-        user = request.user
-        if not user:
-            return Response({"error": "Invalid user"}, status=status.HTTP_401_UNAUTHORIZED)
+        user_object = self.validate_user(request)
+        if isinstance(user_object, Response):
+            return user_object
 
         if not group_id:
             return Response({"error": "Provide group id"}, status=status.HTTP_400_BAD_REQUEST)
-
-        if "Bearer" not in request.headers["Authorization"]:
-            user_object = user.userMobileLinked_id
-        else:
-            user_object = user.id
 
         group = get_object_or_404(GroupExpense, id=group_id, created_by_user=user_object)
         group.delete()
         return Response({'message': "Group deleted successfully"}, status=status.HTTP_200_OK)
 
-
-class CollaboratorDetailView(APIView):
-    authentication_classes = [CustomAuthentication]  # Use the custom authentication class
+# CollaboratorDetailView
+class CollaboratorDetailView(APIView, UserValidationMixin):
+    authentication_classes = [CustomAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, collaborator_id=None):
-        user = request.user
-        if not user:
-            return Response({"error": "Invalid user"}, status=status.HTTP_401_UNAUTHORIZED)
-
-        if "Bearer" not in request.headers["Authorization"]:
-            user_object = user.userMobileLinked_id
-        else:
-            user_object = user.id
+        user_object = self.validate_user(request)
+        if isinstance(user_object, Response):
+            return user_object
 
         if collaborator_id:
             collaborator = get_object_or_404(CollaboratorDetail, id=collaborator_id)
@@ -117,9 +103,9 @@ class CollaboratorDetailView(APIView):
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request):
-        user = request.user
-        if not user:
-            return Response({"error": "Invalid user"}, status=status.HTTP_401_UNAUTHORIZED)
+        user_object = self.validate_user(request)
+        if isinstance(user_object, Response):
+            return user_object
 
         serializer = CollaboratorDetailSerializer(data=request.data)
         if serializer.is_valid():
@@ -131,10 +117,9 @@ class CollaboratorDetailView(APIView):
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, collaborator_id=None):
-        user = request.user
-
-        if not user:
-            return Response({"error": "Invalid user"}, status=status.HTTP_401_UNAUTHORIZED)
+        user_object = self.validate_user(request)
+        if isinstance(user_object, Response):
+            return user_object
 
         if not collaborator_id:
             return Response({"error": "Provide collaborator id"}, status=status.HTTP_400_BAD_REQUEST)
@@ -147,9 +132,9 @@ class CollaboratorDetailView(APIView):
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, collaborator_id=None):
-        user = request.user
-        if not user:
-            return Response({"error": "Invalid user"}, status=status.HTTP_401_UNAUTHORIZED)
+        user_object = self.validate_user(request)
+        if isinstance(user_object, Response):
+            return user_object
 
         if not collaborator_id:
             return Response({"error": "Provide collaborator id"}, status=status.HTTP_400_BAD_REQUEST)
@@ -158,21 +143,21 @@ class CollaboratorDetailView(APIView):
         collaborator.delete()
         return Response({'message': "Collaborator removed successfully"}, status=status.HTTP_200_OK)
 
-
-class ExpenseItemView(APIView):
-    authentication_classes = [CustomAuthentication]  # Use the custom authentication class
+# ExpenseItemView
+# ExpenseItemView
+class ExpenseItemView(APIView, UserValidationMixin):
+    authentication_classes = [CustomAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, expense_id=None):
-        user = request.user
+        user_object = self.validate_user(request)
+        if isinstance(user_object, Response):
+            return user_object
 
-        collaborator_id = request.data.get("collaborator_id")
-
-        if not user:
-            return Response({"error": "Invalid user"}, status=status.HTTP_401_UNAUTHORIZED)
+        collaborator_id = request.query_params.get("collaborator_id")  # Retrieve collaborator_id from query parameters
 
         if expense_id:
-            expense = get_object_or_404(ExpenseItem, id=expense_id, collaborator_id= collaborator_id)
+            expense = get_object_or_404(ExpenseItem, id=expense_id, collaborator_id=collaborator_id)
             serializer = ExpenseItemSerializer(expense)
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
         else:
@@ -181,13 +166,17 @@ class ExpenseItemView(APIView):
             return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request):
-        user = request.user
-        if not user:
-            return Response({"error": "Invalid user"}, status=status.HTTP_401_UNAUTHORIZED)
+        user_object = self.validate_user(request)
+        if isinstance(user_object, Response):
+            return user_object
+
+        collaborator_id = request.query_params.get("collaborator_id")  # Retrieve collaborator_id from query parameters
+
+        if not collaborator_id:
+            return Response({"error": "Provide collaborator_id as a query parameter"}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = ExpenseItemSerializer(data=request.data)
         if serializer.is_valid():
-            collaborator_id = request.data.get("collaborator_id")
             collaborator = get_object_or_404(CollaboratorDetail, id=collaborator_id)
             serializer.save(collaborator_id=collaborator_id)
             return Response(
@@ -197,19 +186,19 @@ class ExpenseItemView(APIView):
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, expense_id=None):
-        user = request.user
-        if not user:
-            return Response({"error": "Invalid user"}, status=status.HTTP_401_UNAUTHORIZED)
+        user_object = self.validate_user(request)
+        if isinstance(user_object, Response):
+            return user_object
 
         if not expense_id:
             return Response({"error": "Provide expense id"}, status=status.HTTP_400_BAD_REQUEST)
 
-        if "Bearer" not in request.headers["Authorization"]:
-            user_scheduled_object = user.userMobileLinked_id
-        else:
-            user_scheduled_object = user.id
+        collaborator_id = request.query_params.get("collaborator_id")  # Retrieve collaborator_id from query parameters
 
-        expense = get_object_or_404(ExpenseItem, id=expense_id, collaborator_id=user_scheduled_object)
+        if not collaborator_id:
+            return Response({"error": "Provide collaborator_id as a query parameter"}, status=status.HTTP_400_BAD_REQUEST)
+
+        expense = get_object_or_404(ExpenseItem, id=expense_id, collaborator_id=collaborator_id)
         serializer = ExpenseItemSerializer(expense, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -217,18 +206,19 @@ class ExpenseItemView(APIView):
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, expense_id=None):
-        user = request.user
-        if "Bearer" not in request.headers["Authorization"]:
-            user_scheduled_object = user.userMobileLinked_id
-        else:
-            user_scheduled_object = user.id
-
-        if not user:
-            return Response({"error": "Invalid user"}, status=status.HTTP_401_UNAUTHORIZED)
+        user_object = self.validate_user(request)
+        if isinstance(user_object, Response):
+            return user_object
 
         if not expense_id:
             return Response({"error": "Provide expense id"}, status=status.HTTP_400_BAD_REQUEST)
 
-        expense = get_object_or_404(ExpenseItem, id=expense_id, collaborator_id=user_scheduled_object)
+        collaborator_id = request.query_params.get("collaborator_id")  # Retrieve collaborator_id from query parameters
+
+        if not collaborator_id:
+            return Response({"error": "Provide collaborator_id as a query parameter"}, status=status.HTTP_400_BAD_REQUEST)
+
+        expense = get_object_or_404(ExpenseItem, id=expense_id, collaborator_id=collaborator_id)
         expense.delete()
         return Response({'message': "Expense deleted successfully"}, status=status.HTTP_200_OK)
+
