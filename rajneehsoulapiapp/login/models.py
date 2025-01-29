@@ -1,9 +1,22 @@
+import re
+
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
+from rest_framework.exceptions import ValidationError
 
+# Custom regex validator for email
+def validate_email_regex(value):
+    # Regular expression for validating an email
+    regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    if not re.match(regex, value):
+        raise ValidationError(f"Invalid email address: {value}")
 
-class MobileRegistration(models.Model):
-    mobileNo = models.CharField(max_length=15)
+class EmailIdRegistration(models.Model):
+    emailId = models.EmailField(
+        max_length=45,
+        validators=[validate_email_regex],
+        verbose_name="Email Address"
+    )
     otpTimeStamp = models.CharField(max_length=100, default="")
     otp = models.CharField(max_length=100, default="")
     fcmToken = models.CharField(max_length=200, default="")
@@ -11,7 +24,7 @@ class MobileRegistration(models.Model):
 
 
 class AuthToken(models.Model):
-    user = models.ForeignKey(MobileRegistration, on_delete=models.CASCADE)
+    user = models.ForeignKey(EmailIdRegistration, on_delete=models.CASCADE)
     key = models.CharField(verbose_name='Key', max_length=40)
     objects = models.Manager()
 
@@ -32,7 +45,7 @@ class CustomUser(AbstractUser):
         help_text="Specific permissions for this user.",
         verbose_name="user permissions",
     )
-    userMobileLinked = models.ForeignKey(MobileRegistration, on_delete=models.CASCADE, null=True)
+    userMobileLinked = models.ForeignKey(EmailIdRegistration, on_delete=models.CASCADE, null=True)
 
 
 from django.contrib.auth.models import User

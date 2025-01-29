@@ -3,8 +3,8 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import serializers
 
-from rajneehsoulapiapp.login.models import AuthToken, MobileRegistration
-from rajneehsoulapiapp.login.utils.utillity import parse_otp_timestamp, validate_mobile_no
+from rajneehsoulapiapp.login.models import AuthToken, EmailIdRegistration
+from rajneehsoulapiapp.login.utils.utillity import parse_otp_timestamp
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -30,40 +30,38 @@ class CustomAuthTokenSerializer(serializers.ModelSerializer):
 
 class MobileRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MobileRegistration
-        fields = ['mobileNo']
+        model = EmailIdRegistration
+        fields = ['emailId']
 
 
 class GetOtpSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MobileRegistration
-        fields = ['mobileNo', 'otp', 'fcmToken']
+        model = EmailIdRegistration
+        fields = ['emailId', 'otp', 'fcmToken']
 
     def validate(self, data):
-        mobile_no = data.get('mobileNo')
+        email_id = data.get('emailId')
         otp = data.get('otp')
 
-        # Refined mobile number validation logic
-        validate_mobile_no(mobile_no)
 
         # Retrieve MobileRegistration or raise error if not found
-        mobile_registration = get_object_or_404(MobileRegistration, mobileNo=mobile_no)
+        email_id_registration = get_object_or_404(EmailIdRegistration, emailId=email_id)
 
         # OTP validation
-        if not otp or len(otp) != 4:
-            raise serializers.ValidationError("OTP must be a 4-digit number.")
+        if not otp or len(otp) != 6:
+            raise serializers.ValidationError("OTP must be a 6-digit number.")
 
         # Use timezone.now() for current time comparison
         current_time = timezone.now()
 
         # Parse the OTP timestamp
-        otp_time = parse_otp_timestamp(mobile_registration.otpTimeStamp)
+        otp_time = parse_otp_timestamp(email_id_registration.otpTimeStamp)
 
         # Check OTP expiration (assuming otpTimeStamp is a datetime object)
         if (current_time - otp_time).total_seconds() > 120:
             raise serializers.ValidationError("OTP has expired.")
 
-        if mobile_registration.otp != otp:
+        if email_id_registration.otp != otp:
             raise serializers.ValidationError("Incorrect OTP.")
 
         return data

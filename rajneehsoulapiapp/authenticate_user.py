@@ -9,7 +9,7 @@ from social_core.exceptions import MissingBackend, AuthException
 from social_django.utils import load_strategy, load_backend
 from social_django.views import NAMESPACE
 
-from rajneehsoulapiapp.login.models import AuthToken, MobileRegistration, CustomUser
+from rajneehsoulapiapp.login.models import AuthToken, EmailIdRegistration, CustomUser
 import logging
 
 # Create a logger instance
@@ -30,15 +30,15 @@ class TokenAuthentication(BaseAuthentication):
             logger.info(f"Token found: {token_instance.key}")
 
             # Get the corresponding MobileRegistration instance
-            mobile_registration = MobileRegistration.objects.get(id=token_instance.user.id)
-            logger.info(f"MobileRegistration found for user ID {mobile_registration.id}")
+            email_id_registration = EmailIdRegistration.objects.get(id=token_instance.user.id)
+            logger.info(f"MobileRegistration found for user ID {email_id_registration.id}")
 
             # Fetch the associated CustomUser object from MobileRegistration via the userMobileLinked field
-            print("mobile_registration.id: ", mobile_registration.id)
-            user = CustomUser.objects.get(userMobileLinked=mobile_registration.id)
+            print("email_id_registration.id: ", email_id_registration.id)
+            user = CustomUser.objects.get(userMobileLinked=email_id_registration.id)
             logger.info(f"CustomUser found for user ID {user.id}")
 
-        except (AuthToken.DoesNotExist, MobileRegistration.DoesNotExist, CustomUser.DoesNotExist) as e:
+        except (AuthToken.DoesNotExist, EmailIdRegistration.DoesNotExist, CustomUser.DoesNotExist) as e:
             print("exception -------------> ", str(e))
             logger.error(f"Authentication failed: {str(e)}")
             raise AuthenticationFailed('Invalid token or user does not exist')

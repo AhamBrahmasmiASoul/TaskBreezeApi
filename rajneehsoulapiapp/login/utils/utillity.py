@@ -9,12 +9,12 @@ from rest_framework import status, serializers
 from rest_framework.authtoken.models import Token
 
 from rajneehsoulapiapp.app_utility.utils import create_response, custom_error_response
-from rajneehsoulapiapp.login.models import AuthToken, MobileRegistration
+from rajneehsoulapiapp.login.models import AuthToken, EmailIdRegistration
 
 
 def generate_otp() -> int:
-    """Generate a 4-digit random OTP."""
-    return random.randint(1000, 9999)
+    """Generate a 6-digit random OTP."""
+    return random.randint(100000, 999999)
 
 
 def get_current_time() -> datetime:
@@ -33,7 +33,7 @@ def handle_existing_token(auth_token_object, mobile_reg_data):
         serializer.save()
         return create_response(data={
             "authData": serializer.data,
-            "mobileNo": mobile_reg_data.mobileNo
+            "emailId": mobile_reg_data.emailId
         }, status_code=status.HTTP_200_OK)
 
     return custom_error_response(serializer)
@@ -54,14 +54,14 @@ def handle_new_token(mobile_reg_data, custom_user):
     serializer = CustomAuthTokenSerializer(auth_token_object)
     return create_response(data={
         "authData": serializer.data,
-        "mobileNo": mobile_reg_data.mobileNo
+        "emailId": mobile_reg_data.emailId
     }, status_code=status.HTTP_200_OK)
 
 
-def update_or_create_mobile_registration(mobile_no: str, otp: str, timestamp: str) -> None:
+def update_or_create_email_id_registration(email_id: str, otp: str, timestamp: str) -> None:
     """Helper method to update or create a mobile registration."""
-    MobileRegistration.objects.update_or_create(
-        mobileNo=mobile_no,
+    EmailIdRegistration.objects.update_or_create(
+        emailId=email_id,
         defaults={"otp": otp, "otpTimeStamp": timestamp},
     )
 
@@ -75,10 +75,3 @@ def parse_otp_timestamp(otp_timestamp):
         return timezone.make_aware(otp_time, timezone.get_current_timezone())
     except ValueError:
         raise serializers.ValidationError("Invalid OTP timestamp format.")
-
-
-def validate_mobile_no(value):
-    if not value.startswith("+91") or len(value) != 13:
-        raise serializers.ValidationError(
-            "Invalid mobile number format. It must start with +91 and be 13 characters long.")
-    return value
