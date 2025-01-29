@@ -28,7 +28,7 @@ class CustomAuthTokenSerializer(serializers.ModelSerializer):
         }
 
 
-class MobileRegistrationSerializer(serializers.ModelSerializer):
+class EmailRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmailIdRegistration
         fields = ['emailId']
