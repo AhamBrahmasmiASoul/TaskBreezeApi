@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from rajneehsoulapiapp.before_login.models import *
-from rajneehsoulapiapp.login.models import CustomUser, AuthToken, CustomUserProfile, MobileRegistration
+from rajneehsoulapiapp.login.models import CustomUser, AuthToken, CustomUserProfile, EmailIdRegistration
 from rajneehsoulapiapp.models import Content
 from rajneehsoulapiapp.schedule_list.models import ScheduleItemList, ItemType
 from .lists.split_expenses.models import *
@@ -24,9 +24,9 @@ class CustomUserAdmin(admin.ModelAdmin):
     list_display = ['id', 'username', 'password', 'first_name', 'last_name', 'email', 'userMobileLinked_id']
 
 
-@admin.register(MobileRegistration)
-class MobileRegistrationAdmin(admin.ModelAdmin):
-    list_display = (['id', 'mobileNo', 'otpTimeStamp', 'otp', 'fcmToken'])
+@admin.register(EmailIdRegistration)
+class EmailIdRegistrationAdmin(admin.ModelAdmin):
+    list_display = (['id', 'emailId', 'otpTimeStamp', 'otp', 'fcmToken'])
 
 
 @admin.register(AuthToken)

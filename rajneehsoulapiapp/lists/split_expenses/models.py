@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-from rajneehsoulapiapp.login.models import MobileRegistration
+from rajneehsoulapiapp.login.models import EmailIdRegistration
 
 
 class ExpenseItem(models.Model):
@@ -19,6 +19,20 @@ class ExpenseItem(models.Model):
         blank=True,
         related_name='expenses'
     )  # Links the expense to a collaborator if applicable
+    created_by_user = models.ForeignKey(
+        EmailIdRegistration,
+        on_delete=models.CASCADE,
+        related_name="expense_created_by_user",
+        null=True,
+        blank=True
+    )
+    created_by_google_auth_user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="expense_created_by_google_auth_user",
+        null=True,
+        blank=True
+    )
 
     def __str__(self):
         return self.i_name
@@ -26,7 +40,7 @@ class ExpenseItem(models.Model):
 
 class CollaboratorDetail(models.Model):
     collab_user = models.ForeignKey(
-        MobileRegistration,
+        EmailIdRegistration,
         on_delete=models.CASCADE,
         related_name="mobile_collaborator",
         null=True,
@@ -63,7 +77,7 @@ class GroupExpense(models.Model):
     last_settled_amt = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
 
     created_by_user = models.ForeignKey(
-        MobileRegistration,
+        EmailIdRegistration,
         on_delete=models.CASCADE,
         related_name="created_groups_by_mobile",
         null=True,

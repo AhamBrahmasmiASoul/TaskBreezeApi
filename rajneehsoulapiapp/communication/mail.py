@@ -47,3 +47,20 @@ def send_email_anonymous(email, schedule_date_time, weatherStatus):
     # Send email
     email.send()
 
+
+def send_email_otp_verification(email, otp, valid_msg):
+    subject = "Task Breeze Registration"
+    from_email = settings.EMAIL_HOST_USER
+    to_email = [email]
+
+    # Render HTML template with context
+    html_content = render_to_string('email_otp_verification_template.html', {'header_text': subject,
+        'email': email, 'otp': otp, "validityPeriod": valid_msg})
+
+    # Create email
+    email = EmailMultiAlternatives(subject, "", from_email, to_email)
+    email.attach_alternative(html_content, "text/html")  # Attach HTML content
+
+    # Send email
+    email.send()
+
