@@ -21,8 +21,8 @@ def get_otp_api(request: Request) -> Response:
     if not received_email_id:
         return custom_error_response("Email number is required.")
 
-    from rajneehsoulapiapp.login.serializers import MobileRegistrationSerializer
-    serializer = MobileRegistrationSerializer(data=request.data)
+    from rajneehsoulapiapp.login.serializers import EmailRegistrationSerializer
+    serializer = EmailRegistrationSerializer(data=request.data)
     if not serializer.is_valid():
         return custom_error_response(serializer)
 
@@ -72,13 +72,13 @@ def login_via_otp(request: Request) -> Response:
         return handle_existing_token(auth_token, email_id_registration)
     else:
         # Ensure CustomUser is created and linked to the MobileRegistration
-        custom_user = CustomUser.objects.filter(userMobileLinked=email_id_registration).first()
+        custom_user = CustomUser.objects.filter(userEmailLinked=email_id_registration).first()
 
         if not custom_user:
             custom_user = CustomUser.objects.create(
                 username=f"mobile_user_{received_email_id}",
                 password="random_password",  # You can generate a random password or leave it empty if required
-                userMobileLinked=email_id_registration
+                userEmailLinked=email_id_registration
             )
 
         # Generate a new AuthToken

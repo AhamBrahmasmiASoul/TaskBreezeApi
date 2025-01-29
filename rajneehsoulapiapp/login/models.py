@@ -45,7 +45,7 @@ class CustomUser(AbstractUser):
         help_text="Specific permissions for this user.",
         verbose_name="user permissions",
     )
-    userMobileLinked = models.ForeignKey(EmailIdRegistration, on_delete=models.CASCADE, null=True)
+    userEmailLinked = models.ForeignKey(EmailIdRegistration, on_delete=models.CASCADE, null=True)
 
 
 from django.contrib.auth.models import User
