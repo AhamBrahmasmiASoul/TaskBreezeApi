@@ -7,7 +7,7 @@ from rajneehsoulapiapp.login.models import EmailIdRegistration
 class ExpenseItem(models.Model):
     i_name = models.CharField(max_length=255)
     i_desp = models.TextField()
-    i_qty = models.CharField(max_length=100)
+    i_qty = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     i_notes = models.TextField()
     is_settled = models.BooleanField(default=False)
     i_amt = models.DecimalField(max_digits=10, decimal_places=2)
@@ -71,8 +71,6 @@ class CollaboratorDetail(models.Model):
 
 class GroupExpense(models.Model):
     grp_name = models.CharField(max_length=255)
-    t_item = models.IntegerField(default=0)  # Total items count
-    t_amt = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)  # Total amount
     last_settled_date_time = models.DateTimeField(null=True, blank=True)  # Optional
     last_settled_amt = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
 

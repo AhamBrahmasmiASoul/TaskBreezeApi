@@ -1,8 +1,13 @@
+from decimal import Decimal
+
 from rest_framework import serializers
 from .models import ExpenseItem, CollaboratorDetail, GroupExpense
 
 
 class ExpenseItemSerializer(serializers.ModelSerializer):
+    i_qty = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
+    i_amt = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
+
     class Meta:
         model = ExpenseItem
         fields = '__all__'
