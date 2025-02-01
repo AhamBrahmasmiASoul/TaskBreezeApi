@@ -1,9 +1,10 @@
+import pytz
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import serializers
 
-from rajneehsoulapiapp.login.models import AuthToken, EmailIdRegistration
+from rajneehsoulapiapp.login.models import AuthToken, EmailIdRegistration, IST
 from rajneehsoulapiapp.login.utils.utillity import parse_otp_timestamp
 
 
@@ -19,13 +20,15 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CustomAuthTokenSerializer(serializers.ModelSerializer):
+    expires_at = serializers.SerializerMethodField()  # Convert to IST before returning
+
     class Meta:
         model = AuthToken
-        fields = ['key', 'user']
-        extra_kwargs = {
-            'key': {'required': True},
-            'user': {'required': True},
-        }
+        fields = ['key', 'user', 'expires_at']
+
+    def get_expires_at(self, obj):  # Ensure this method is inside the class
+        """Convert expires_at to IST before returning."""
+        return obj.expires_at.astimezone(IST).strftime('%Y-%m-%d %H:%M:%S')
 
 
 class MobileRegistrationSerializer(serializers.ModelSerializer):

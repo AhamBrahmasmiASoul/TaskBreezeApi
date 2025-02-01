@@ -1,8 +1,12 @@
 import re
+from datetime import timedelta
 
+import pytz
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
-from rest_framework.exceptions import ValidationError
+from django.utils import timezone
+from rest_framework.exceptions import ValidationError, AuthenticationFailed
+
 
 # Custom regex validator for email
 def validate_email_regex(value):
@@ -22,11 +26,37 @@ class EmailIdRegistration(models.Model):
     fcmToken = models.CharField(max_length=200, default="")
     objects = models.Manager()
 
-
+IST = pytz.timezone('Asia/Kolkata')
 class AuthToken(models.Model):
     user = models.ForeignKey(EmailIdRegistration, on_delete=models.CASCADE)
     key = models.CharField(verbose_name='Key', max_length=40)
+    expires_at = models.DateTimeField(default=timezone.now() + timedelta(minutes=2))  # Set 2 min expiry
     objects = models.Manager()
+
+    def is_expired(self) -> bool:
+        """Check if the token has expired."""
+        return timezone.now() > self.expires_at
+
+    def refresh_expiry(self):
+        """Extend the expiry time by 2 more minutes."""
+        self.expires_at = timezone.now() + timedelta(minutes=2)
+        self.save()
+
+    def _authenticate_with_token(self, request):
+        from rajneehsoulapiapp.authenticate_user import TokenAuthentication
+        user_auth_tuple = TokenAuthentication().authenticate(request)
+        if user_auth_tuple is None:
+            raise AuthenticationFailed('Invalid token')
+
+        user, auth_token = user_auth_tuple
+
+        # Convert current time to IST for accurate comparison
+        current_time_ist = timezone.now().astimezone(IST)
+
+        if auth_token.expires_at.astimezone(IST) < current_time_ist:
+            raise AuthenticationFailed('Token has expired')
+
+        return user, auth_token
 
 
 class CustomUser(AbstractUser):

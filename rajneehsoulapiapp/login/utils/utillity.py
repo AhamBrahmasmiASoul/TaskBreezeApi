@@ -1,7 +1,7 @@
 import binascii
 import os
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytz
 from django.utils import timezone
@@ -23,40 +23,46 @@ def get_current_time() -> datetime:
 
 
 def handle_existing_token(auth_token_object, mobile_reg_data):
-    # Generate new token and update AuthToken
-    new_key = binascii.hexlify(os.urandom(20)).decode()
-    from rajneehsoulapiapp.login.serializers import CustomAuthTokenSerializer
-    serializer = CustomAuthTokenSerializer(auth_token_object, data={"key": new_key, "user": mobile_reg_data.id},
-                                           partial=True)
+    """Check token expiration and update or reuse accordingly."""
+    if auth_token_object.is_expired():
+        # Generate new key since the old one is expired
+        new_key = binascii.hexlify(os.urandom(20)).decode()
+        auth_token_object.key = new_key
+        auth_token_object.refresh_expiry()
+    else:
+        # Extend token validity without changing the key
+        auth_token_object.refresh_expiry()
 
-    if serializer.is_valid():
-        serializer.save()
-        return create_response(data={
-            "authData": serializer.data,
-            "emailId": mobile_reg_data.emailId
-        }, status_code=status.HTTP_200_OK)
-
-    return custom_error_response(serializer)
-
-
-def handle_new_token(mobile_reg_data, custom_user):
-    # Create a new AuthToken and save
-    new_key = binascii.hexlify(os.urandom(20)).decode()
-    auth_token_object = AuthToken.objects.create(
-        key=new_key,
-        user_id=mobile_reg_data.id
-    )
-    # Associate the new AuthToken with the CustomUser
-    custom_user.auth_token = auth_token_object  # Assuming you have a `auth_token` field in the CustomUser model
-    custom_user.save()
+    auth_token_object.save()
 
     from rajneehsoulapiapp.login.serializers import CustomAuthTokenSerializer
     serializer = CustomAuthTokenSerializer(auth_token_object)
+
     return create_response(data={
         "authData": serializer.data,
         "emailId": mobile_reg_data.emailId
     }, status_code=status.HTTP_200_OK)
 
+
+def handle_new_token(mobile_reg_data, custom_user):
+    """Create a new token with an expiry time of 2 minutes."""
+    new_key = binascii.hexlify(os.urandom(20)).decode()
+    auth_token_object = AuthToken.objects.create(
+        key=new_key,
+        user_id=mobile_reg_data.id,
+        expires_at=timezone.now() + timedelta(minutes=720)  # Set expiry time ? TO DO
+    )
+
+    custom_user.auth_token = auth_token_object  # Assuming a field exists
+    custom_user.save()
+
+    from rajneehsoulapiapp.login.serializers import CustomAuthTokenSerializer
+    serializer = CustomAuthTokenSerializer(auth_token_object)
+
+    return create_response(data={
+        "authData": serializer.data,
+        "emailId": mobile_reg_data.emailId
+    }, status_code=status.HTTP_200_OK)
 
 def update_or_create_email_id_registration(email_id: str, otp: str, timestamp: str) -> None:
     """Helper method to update or create a mobile registration."""
