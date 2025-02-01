@@ -176,8 +176,6 @@ class ExpenseItemAdmin(admin.ModelAdmin):
 class GroupExpenseAdmin(admin.ModelAdmin):
     list_display = (
         'grp_name',
-        't_item',
-        't_amt',
         'last_settled_date_time',
         'created_by_user',
         'created_by_google_auth_user',
