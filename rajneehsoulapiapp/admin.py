@@ -1,7 +1,8 @@
 from django.contrib import admin
+from django.utils.timezone import localtime
 
 from rajneehsoulapiapp.before_login.models import *
-from rajneehsoulapiapp.login.models import CustomUser, AuthToken, CustomUserProfile, EmailIdRegistration
+from rajneehsoulapiapp.login.models import CustomUser, AuthToken, CustomUserProfile, IST
 from rajneehsoulapiapp.models import Content
 from rajneehsoulapiapp.schedule_list.models import ScheduleItemList, ItemType
 from .lists.split_expenses.models import *
@@ -31,7 +32,14 @@ class EmailIdRegistrationAdmin(admin.ModelAdmin):
 
 @admin.register(AuthToken)
 class TokenAdmin(admin.ModelAdmin):
-    list_display = ['id', 'key', 'user']
+    list_display = ['id', 'key', 'expires_at_ist', 'user']
+
+    def expires_at_ist(self, obj):
+        """Convert expires_at to IST before displaying in Django Admin."""
+        return localtime(obj.expires_at, IST).strftime('%Y-%m-%d %H:%M:%S')
+
+    expires_at_ist.admin_order_field = 'expires_at'  # Allows sorting
+    expires_at_ist.short_description = 'Expires At (IST)'  # Custom column name
 
 
 @admin.register(ScheduleItemList)

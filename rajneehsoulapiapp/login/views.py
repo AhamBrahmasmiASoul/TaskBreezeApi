@@ -34,9 +34,11 @@ def get_otp_api(request: Request) -> Response:
         # Update or create the MobileRegistration entry
         update_or_create_email_id_registration(received_email_id, str(otp), str(current_local_time))
 
-        send_email_otp_verification(received_email_id, otp, validity_period)
+        #send_email_otp_verification(received_email_id, otp, validity_period)
 
-        response_data = {"message": "OTP send on email : " + received_email_id + " successfully."}
+        #response_data = {"message": "OTP send on email : " + received_email_id + " successfully."}
+        response_data = {"message": "OTP  : " + str(otp)}
+
 
         return create_response("Success", response_data, status_code=status.HTTP_200_OK)
 
