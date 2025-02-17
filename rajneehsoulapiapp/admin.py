@@ -5,6 +5,7 @@ from rajneehsoulapiapp.before_login.models import *
 from rajneehsoulapiapp.login.models import CustomUser, AuthToken, CustomUserProfile, IST
 from rajneehsoulapiapp.models import Content
 from rajneehsoulapiapp.schedule_list.models import ScheduleItemList, ItemType
+from .communication.models import OtpConfig
 from .lists.split_expenses.models import *
 from .post_login.models import *
 
@@ -204,3 +205,7 @@ class CollaboratorDetailAdmin(admin.ModelAdmin):
 # Registering models with respective admin classes
 admin.site.register(CollaboratorDetail, CollaboratorDetailAdmin)
 admin.site.register(GroupExpense, GroupExpenseAdmin)
+
+@admin.register(OtpConfig)
+class OtpConfigAdmin(admin.ModelAdmin):
+    list_display = ("via_mail",)
