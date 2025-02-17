@@ -16,7 +16,7 @@ def get_user_object(request):
     user = request.user
     if is_bearer:
         return user.id
-    return user.userMobileLinked_id
+    return user.emailIdLinked_id
 
 # Mixin for user validation
 class UserValidationMixin:

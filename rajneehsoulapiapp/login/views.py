@@ -74,13 +74,13 @@ def login_via_otp(request: Request) -> Response:
         return handle_existing_token(auth_token, email_id_registration)
     else:
         # Ensure CustomUser is created and linked to the MobileRegistration
-        custom_user = CustomUser.objects.filter(userMobileLinked=email_id_registration).first()
+        custom_user = CustomUser.objects.filter(emailIdLinked=email_id_registration).first()
 
         if not custom_user:
             custom_user = CustomUser.objects.create(
                 username=f"mobile_user_{received_email_id}",
                 password="random_password",  # You can generate a random password or leave it empty if required
-                userMobileLinked=email_id_registration
+                emailIdLinked=email_id_registration
             )
 
         # Generate a new AuthToken
