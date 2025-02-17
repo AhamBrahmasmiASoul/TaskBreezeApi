@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 import rajneeshsoulapi
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -29,6 +31,14 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['10.0.2.2', '127.0.0.1', 'taskbreezeapi.pythonanywhere.com']
 
+load_dotenv()
+
+EMAIL_HOST_USER_KEY = os.getenv("email_host_user")
+EMAIL_HOST_PASSWORD_KEY = os.getenv("email_host_pwd")
+DEFAULT_FROM_EMAIL_KEY = os.getenv("default_from_key")
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv("social_auth_google_oauth2")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET_KEY = os.getenv("social_auth_google_oauth2_secret")
+GOOGLE_CLIENT_ID_KEY = os.getenv("google_client_id")
 
 # Application definition
 
@@ -111,9 +121,9 @@ OAUTH2_PROVIDER = {
 }
 
 # Google configuration
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "AIzaSyDxvkvjxqv_5yyvItxH4q4fJuTYa6IU1kQ"
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "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"
-GOOGLE_CLIENT_ID = "728715700891-s8cqtnd0cpejrpc4213m64gc8olvqddp.apps.googleusercontent.com"
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET_KEY
+GOOGLE_CLIENT_ID = GOOGLE_CLIENT_ID_KEY
 
 # Define SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE to get extra permissions from Google.
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
@@ -193,6 +203,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'teamtaskbreeze@gmail.com'  # Your email
-EMAIL_HOST_PASSWORD = ''  # Your email password or app-specific password
-DEFAULT_FROM_EMAIL = 'rajneeshsharma199@gmail.com'
+EMAIL_HOST_USER = EMAIL_HOST_USER_KEY  # Your email
+EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD_KEY  # Your email password or app-specific password
+DEFAULT_FROM_EMAIL = DEFAULT_FROM_EMAIL_KEY
