@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from rajneehsoulapiapp.communication.mail import send_email_otp_verification
+from rajneehsoulapiapp.communication.models import OtpConfig
 from rajneehsoulapiapp.login.models import EmailIdRegistration, AuthToken, CustomUser
 from rajneehsoulapiapp.login.utils.utillity import (
     handle_existing_token,
@@ -12,6 +13,11 @@ from rajneehsoulapiapp.login.utils.utillity import (
     custom_error_response,
     create_response, update_or_create_email_id_registration, generate_otp, get_current_time,
 )
+
+def is_otp_sent_via_mail():
+    """Fetch OTP configuration from the database."""
+    config = OtpConfig.objects.first()  # Assuming only one config exists
+    return config.via_mail if config else False  # Default to False if no entry
 
 
 @api_view(["POST"])
@@ -34,10 +40,12 @@ def get_otp_api(request: Request) -> Response:
         # Update or create the MobileRegistration entry
         update_or_create_email_id_registration(received_email_id, str(otp), str(current_local_time))
 
-        #send_email_otp_verification(received_email_id, otp, validity_period)
-
-        #response_data = {"message": "OTP send on email : " + received_email_id + " successfully."}
-        response_data = {"message": "OTP  : " + str(otp)}
+        # Check if OTP should be sent via mail
+        if is_otp_sent_via_mail():
+            send_email_otp_verification(received_email_id, otp, validity_period)
+            response_data = {"message": f"OTP sent via email to {received_email_id} successfully."}
+        else:
+            response_data = {"message": f"OTP: {otp}"}
 
 
         return create_response("Success", response_data, status_code=status.HTTP_200_OK)
