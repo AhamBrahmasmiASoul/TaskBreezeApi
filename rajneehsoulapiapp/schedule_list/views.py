@@ -26,8 +26,8 @@ from rest_framework.views import APIView
 #
 #         if hasattr(user, "google_auth_user_id"):  # Social user
 #             return user, {"google_auth_user_id": user.id}
-#         elif hasattr(user, "userMobileLinked_id"):  # Custom user
-#             return user, {"user_id": user.userMobileLinked_id}
+#         elif hasattr(user, "emailIdLinked_id"):  # Custom user
+#             return user, {"user_id": user.emailIdLinked_id}
 #         else:
 #             raise ValueError("Unknown user type")
 #
@@ -74,7 +74,7 @@ class ScheduleItemView(APIView):
 
         if item_id:
             if "Bearer" not in request.headers["Authorization"]:
-                user_scheduled_object = ScheduleItemList.objects.filter(user_id=user.userMobileLinked_id, id=item_id)
+                user_scheduled_object = ScheduleItemList.objects.filter(user_id=user.emailIdLinked_id, id=item_id)
             else:
                 user_scheduled_object = ScheduleItemList.objects.filter(google_auth_user_id=user.id, id=item_id)
             if not user_scheduled_object.exists():
@@ -82,7 +82,7 @@ class ScheduleItemView(APIView):
             serializer = ScheduleItemListSerializers(user_scheduled_object, many=True)
         else:
             if "Bearer" not in request.headers["Authorization"]:
-                schedule_list_items = ScheduleItemList.objects.filter(user_id=user.userMobileLinked_id)
+                schedule_list_items = ScheduleItemList.objects.filter(user_id=user.emailIdLinked_id)
             else:
                 schedule_list_items = ScheduleItemList.objects.filter(google_auth_user_id=user.id)
 
@@ -100,7 +100,7 @@ class ScheduleItemView(APIView):
         serializer = ScheduleItemListSerializers(data=request.data)
         if serializer.is_valid():
             if "Bearer" not in request.headers["Authorization"]:
-                serializer.save(user_id=user.userMobileLinked_id)
+                serializer.save(user_id=user.emailIdLinked_id)
             else:
                 serializer.save(google_auth_user_id=user.id)
             return Response(
@@ -118,7 +118,7 @@ class ScheduleItemView(APIView):
         if not item_id:
             return Response({"error": "Provide item id"}, status=status.HTTP_400_BAD_REQUEST)
 
-        schedule_item = get_object_or_404(ScheduleItemList, id=item_id, user_id=user.userMobileLinked_id)
+        schedule_item = get_object_or_404(ScheduleItemList, id=item_id, user_id=user.emailIdLinked_id)
         serializer = ScheduleItemListSerializers(schedule_item, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -134,9 +134,9 @@ class ScheduleItemView(APIView):
         if not item_id:
             return Response({"error": "Provide item id"}, status=status.HTTP_400_BAD_REQUEST)
 
-        schedule_item = get_object_or_404(ScheduleItemList, id=item_id, user_id=user.userMobileLinked_id)
+        schedule_item = get_object_or_404(ScheduleItemList, id=item_id, user_id=user.emailIdLinked_id)
         schedule_item.delete()
-        remaining_items = ScheduleItemList.objects.filter(user_id=user.userMobileLinked_id)
+        remaining_items = ScheduleItemList.objects.filter(user_id=user.emailIdLinked_id)
         serializer = ScheduleItemListSerializers(remaining_items, many=True)
         return Response(
             {

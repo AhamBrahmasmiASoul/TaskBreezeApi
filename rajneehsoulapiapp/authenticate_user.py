@@ -33,9 +33,9 @@ class TokenAuthentication(BaseAuthentication):
             email_id_registration = EmailIdRegistration.objects.get(id=token_instance.user.id)
             logger.info(f"MobileRegistration found for user ID {email_id_registration.id}")
 
-            # Fetch the associated CustomUser object from MobileRegistration via the userMobileLinked field
+            # Fetch the associated CustomUser object from MobileRegistration via the emailIdLinked field
             print("email_id_registration.id: ", email_id_registration.id)
-            user = CustomUser.objects.get(userMobileLinked=email_id_registration.id)
+            user = CustomUser.objects.get(emailIdLinked=email_id_registration.id)
             logger.info(f"CustomUser found for user ID {user.id}")
 
         except (AuthToken.DoesNotExist, EmailIdRegistration.DoesNotExist, CustomUser.DoesNotExist) as e:
