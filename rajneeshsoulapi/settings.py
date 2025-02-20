@@ -31,7 +31,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['10.0.2.2', '127.0.0.1', 'taskbreezeapi.pythonanywhere.com']
 
-load_dotenv()
+dotenv_path = "/home/taskBreezeApi/.env"
+load_dotenv(dotenv_path)
 
 EMAIL_HOST_USER_KEY = os.getenv("email_host_user")
 EMAIL_HOST_PASSWORD_KEY = os.getenv("email_host_pwd")
