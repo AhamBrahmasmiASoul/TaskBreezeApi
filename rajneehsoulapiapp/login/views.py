@@ -45,7 +45,7 @@ def get_otp_api(request: Request) -> Response:
             send_email_otp_verification(received_email_id, otp, validity_period)
             response_data = {"message": f"OTP sent via email to {received_email_id} successfully."}
         else:
-            response_data = {"message": f"OTP: {otp}"}
+            response_data = {"message":"Success", "otp" : otp}
 
 
         return create_response("Success", response_data, status_code=status.HTTP_200_OK)
