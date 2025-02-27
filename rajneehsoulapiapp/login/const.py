@@ -1,1 +1,2 @@
-validity_period = 2
+validity_period = 1
+otp_length = 4

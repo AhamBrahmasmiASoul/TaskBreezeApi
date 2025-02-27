@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import serializers
 
+from rajneehsoulapiapp.login.const import validity_period, otp_length
 from rajneehsoulapiapp.login.models import AuthToken, EmailIdRegistration, IST
 from rajneehsoulapiapp.login.utils.utillity import parse_otp_timestamp
 
@@ -51,8 +52,8 @@ class GetOtpSerializer(serializers.ModelSerializer):
         email_id_registration = get_object_or_404(EmailIdRegistration, emailId=email_id)
 
         # OTP validation
-        if not otp or len(otp) != 6:
-            raise serializers.ValidationError("OTP must be a 6-digit number.")
+        if not otp or len(otp) != otp_length:
+            raise serializers.ValidationError(f"OTP must be a {otp_length}-digit number.")
 
         # Use timezone.now() for current time comparison
         current_time = timezone.now()
@@ -61,7 +62,7 @@ class GetOtpSerializer(serializers.ModelSerializer):
         otp_time = parse_otp_timestamp(email_id_registration.otpTimeStamp)
 
         # Check OTP expiration (assuming otpTimeStamp is a datetime object)
-        if (current_time - otp_time).total_seconds() > 120:
+        if (current_time - otp_time).total_seconds() > validity_period:
             raise serializers.ValidationError("OTP has expired.")
 
         if email_id_registration.otp != otp:

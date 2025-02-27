@@ -134,6 +134,7 @@ def login_via_otp(request: Request) -> Response:
     # Update mobile registration details
     email_id_registration.otp = ""
     email_id_registration.fcm_token = fcm_token
+
     email_id_registration.save()
 
     # Generate token for the user after OTP validation

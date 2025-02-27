@@ -14,7 +14,7 @@ from rajneehsoulapiapp.login.models import AuthToken, EmailIdRegistration
 
 def generate_otp() -> int:
     """Generate a 6-digit random OTP."""
-    return random.randint(100000, 999999)
+    return random.randint(1000, 9999)
 
 
 def get_current_time() -> datetime:
