@@ -39,6 +39,7 @@ class ExpenseItem(models.Model):
 
 
 class CollaboratorDetail(models.Model):
+
     collab_user = models.ForeignKey(
         EmailIdRegistration,
         on_delete=models.CASCADE,
@@ -53,6 +54,7 @@ class CollaboratorDetail(models.Model):
         null=True,
         blank=True
     )
+    collaborator_name = models.CharField(max_length=50, null=True, default=None)
     status = models.CharField(max_length=50, null=True, default=None)  # Status: PENDING, SETTLED, OWNED
     requested_payment_qr_url = models.URLField(null=True, blank=True)  # PayPal, gPay QR, etc.
     redirect_upi_url = models.URLField(null=True, blank=True)  # For gPay/UPI link, etc.
