@@ -154,8 +154,8 @@ class CollaboratorDetailView(APIView, UserValidationMixin):
             else:
                 serializer.save(collab_user_id=user_object)
 
-            all_data = CollaboratorDetail.objects.all()
-            all_data_serializer = CollaboratorDetailSerializer(all_data, many=True)
+            all_data = GroupExpense.objects.all()
+            all_data_serializer = GroupExpenseSerializer(all_data, many=True)
 
             return Response(
                 {'message': "Collaborator added successfully", 'data': all_data_serializer.data},
@@ -176,8 +176,9 @@ class CollaboratorDetailView(APIView, UserValidationMixin):
         if serializer.is_valid():
             serializer.save()
 
-            all_data = CollaboratorDetail.objects.all()
-            all_data_serializer = CollaboratorDetailSerializer(all_data, many=True)
+            all_data = GroupExpense.objects.all()
+            all_data_serializer = GroupExpenseSerializer(all_data, many=True)
+
             return Response({'data': all_data_serializer.data}, status=status.HTTP_200_OK)
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -192,8 +193,8 @@ class CollaboratorDetailView(APIView, UserValidationMixin):
         collaborator = get_object_or_404(CollaboratorDetail, id=collaborator_id)
         collaborator.delete()
 
-        all_data = CollaboratorDetail.objects.all()
-        all_data_serializer = CollaboratorDetailSerializer(all_data, many=True)
+        all_data = GroupExpense.objects.all()
+        all_data_serializer = GroupExpenseSerializer(all_data, many=True)
 
         return Response({'message': "Collaborator removed successfully", 'data': all_data_serializer.data}, status=status.HTTP_200_OK)
 
@@ -245,8 +246,8 @@ class ExpenseItemView(APIView, UserValidationMixin):
             else:
                 serializer.save(created_by_user_id=user_object, collaborator_id=collaborator_id)
 
-            all_data = ExpenseItem.objects.all()
-            all_data_serializer = ExpenseItemSerializer(all_data, many=True)
+            all_data = GroupExpense.objects.all()
+            all_data_serializer = GroupExpenseSerializer(all_data, many=True)
 
             return Response(
                 {'message': "Expense added successfully", 'data': all_data_serializer.data},
@@ -272,8 +273,9 @@ class ExpenseItemView(APIView, UserValidationMixin):
         serializer = ExpenseItemSerializer(expense, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            all_data = ExpenseItem.objects.all()
-            all_data_serializer = ExpenseItemSerializer(all_data, many=True)
+
+            all_data = GroupExpense.objects.all()
+            all_data_serializer = GroupExpenseSerializer(all_data, many=True)
 
 
             return Response({'data': all_data_serializer.data}, status=status.HTTP_200_OK)
@@ -296,8 +298,8 @@ class ExpenseItemView(APIView, UserValidationMixin):
         expense = get_object_or_404(ExpenseItem, id=expense_id, collaborator_id=collaborator_id)
         expense.delete()
 
-        all_data = ExpenseItem.objects.all()
-        all_data_serializer = ExpenseItemSerializer(all_data, many=True)
+        all_data = GroupExpense.objects.all()
+        all_data_serializer = GroupExpenseSerializer(all_data, many=True)
 
         return Response({'message': "Expense deleted successfully",
                          'data': all_data_serializer.data}, status=status.HTTP_200_OK)
