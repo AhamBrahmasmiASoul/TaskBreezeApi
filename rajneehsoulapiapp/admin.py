@@ -4,7 +4,7 @@ from django.utils.timezone import localtime
 from rajneehsoulapiapp.before_login.models import *
 from rajneehsoulapiapp.login.models import CustomUser, AuthToken, CustomUserProfile, IST
 from rajneehsoulapiapp.models import Content
-from rajneehsoulapiapp.schedule_list.models import ScheduleItemList, ItemType
+from rajneehsoulapiapp.schedule_list.models import ScheduleItemList, ItemType, ScheduleListAttachments
 from .communication.models import OtpConfig
 from .lists.split_expenses.models import *
 from .post_login.models import *
@@ -45,7 +45,7 @@ class TokenAdmin(admin.ModelAdmin):
 
 @admin.register(ScheduleItemList)
 class ScheduleItemListAdmin(admin.ModelAdmin):
-    list_display = ['id', 'dateTime', 'title', 'lastScheduleOn', 'isItemPinned', 'subTitle', 'isArchived', 'priority', 'attachedImage', 'user_id', 'google_auth_user_id']
+    list_display = ['id', 'dateTime', 'title', 'lastScheduleOn', 'isItemPinned', 'subTitle', 'isArchived', 'priority', 'user_id', 'google_auth_user_id']
 
 
 @admin.register(CustomUserProfile)
@@ -208,4 +208,9 @@ admin.site.register(GroupExpense, GroupExpenseAdmin)
 
 @admin.register(OtpConfig)
 class OtpConfigAdmin(admin.ModelAdmin):
-    list_display = ("via_mail",)
+    list_display = (("via_mail",))
+
+
+@admin.register(ScheduleListAttachments)
+class ScheduleListAttachmentsAdmin(admin.ModelAdmin):
+    list_display = ["file", "user"]

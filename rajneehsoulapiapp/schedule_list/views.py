@@ -1,12 +1,14 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from rajneehsoulapiapp.CustomAuthentication import CustomAuthentication
-from rajneehsoulapiapp.schedule_list.models import ScheduleItemList
-from rajneehsoulapiapp.schedule_list.serializers import ScheduleItemListSerializers
+from rajneehsoulapiapp.schedule_list.models import ScheduleItemList, ScheduleListAttachments
+from rajneehsoulapiapp.schedule_list.serializers import ScheduleItemListSerializers, \
+    ScheduleListAttachmentUploadSerializer
 
 from rest_framework.views import APIView
 
@@ -145,3 +147,29 @@ class ScheduleItemView(APIView):
             },
             status=status.HTTP_200_OK
         )
+
+
+class UploadScheduleAttachmentsView(APIView):
+    authentication_classes = [CustomAuthentication]  # Use the custom authentication class
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        schedule_id = request.data.get('schedule_id')
+        try:
+            schedule = ScheduleItemList.objects.get(id=schedule_id)
+        except ScheduleItemList.DoesNotExist:
+            return Response({"error": "Schedule not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        files = request.FILES.getlist('files')
+        uploaded_files = []
+
+        for f in files:
+            attachment = ScheduleListAttachments.objects.create(
+                user=schedule,
+                file=f
+            )
+            uploaded_files.append(attachment)
+
+        serializer = ScheduleListAttachmentUploadSerializer(uploaded_files, many=True)
+        return Response({"attachments": serializer.data}, status=status.HTTP_201_CREATED)
