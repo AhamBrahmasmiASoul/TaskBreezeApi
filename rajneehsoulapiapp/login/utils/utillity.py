@@ -50,7 +50,7 @@ def handle_new_token(mobile_reg_data, custom_user):
     auth_token_object = AuthToken.objects.create(
         key=new_key,
         user_id=mobile_reg_data.id,
-        expires_at=timezone.now() + timedelta(minutes=720)  # Set expiry time ? TO DO
+        expires_at=timezone.now() + timedelta(hours=12)  # Set expiry time ? TO DO
     )
 
     custom_user.auth_token = auth_token_object  # Assuming a field exists
