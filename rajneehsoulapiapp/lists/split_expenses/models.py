@@ -1,166 +1,126 @@
-from django.contrib.auth.models import User
 from django.db import models
 
-from rajneehsoulapiapp.login.models import EmailIdRegistration
+from rajneehsoulapiapp.lists.split_expenses.utils.enums import CollaboratorStatus, SettleMode, SETTLE_MEDIUM_CHOICES
+from rajneehsoulapiapp.login.models import EmailIdRegistration, validate_email_regex
 
 
-class ExpenseItem(models.Model):
-    i_name = models.CharField(max_length=255)
-    i_desp = models.TextField()
-    i_qty = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    i_notes = models.TextField()
-    is_settled = models.BooleanField(default=False)
-    i_amt = models.DecimalField(max_digits=10, decimal_places=2)
-    date_time = models.DateTimeField()
-    collaborator = models.ForeignKey(
-        'CollaboratorDetail',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='expenses'
-    )  # Links the expense to a collaborator if applicable
-    created_by_user = models.ForeignKey(
+class Group(models.Model):
+    """
+    Represents a group created by a registered user.
+    """
+    name = models.CharField(max_length=100)
+    created_on = models.DateTimeField(auto_now_add=True)
+    createdBy = models.ForeignKey(
         EmailIdRegistration,
-        on_delete=models.CASCADE,
-        related_name="expense_created_by_user",
-        null=True,
-        blank=True
+        related_name='group_created_by',
+        on_delete=models.CASCADE
     )
-    created_by_google_auth_user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="expense_created_by_google_auth_user",
-        null=True,
-        blank=True
-    )
+
+    objects = models.Manager()
+
+    class Meta:
+        ordering = ['-created_on']
 
     def __str__(self):
-        return self.i_name
+        return f"Group({self.id}): {self.name}"
 
 
-from django.db import models
-from django.contrib.auth.models import User
-from enum import Enum
-
-
-# --- Enum Definitions with .description ---
-class CollaboratorStatus(models.TextChoices):
-    PENDING = 'PENDING', 'Pending'
-    SETTLED = 'SETTLED', 'Settled'
-    OWNED = 'OWNED', 'Owned'
-
-
-class SettleMode(models.TextChoices):
-    ONLINE = 'ONLINE', 'Online'
-    CASH = 'CASH', 'Cash'
-
-
-class OnlinePaymentsOptions(Enum):
-    UPI = "UPI"
-    NET_BANKING = "Net Banking"
-    CREDIT_CARD = "Credit Card"
-    DEBIT_CARD = "Debit Card"
-    NEFT = "NEFT"
-    RTGS = "RTGS"
-    DRAFT = "Demand Draft"
-
-    @property
-    def description(self):
-        return self.value
-
-
-class OfflinePaymentsOptions(Enum):
-    CASH = "Cash"
-    BARTER = "Barter"
-
-    @property
-    def description(self):
-        return self.value
-
-
-# --- Combined Settle Medium Choices ---
-SETTLE_MEDIUM_CHOICES = [
-    (option.name, option.description)
-    for option in list(OnlinePaymentsOptions) + list(OfflinePaymentsOptions)
-]
-
-
-# --- Model ---
-class CollaboratorDetail(models.Model):
-
-    collab_user = models.ForeignKey(
-        'EmailIdRegistration',
+class Collaborator(models.Model):
+    """
+    Represents a collaborator associated with a group. This can either be an active collaborator
+    who is a registered user or a pending invitation identified by email.
+    """
+    createdBy = models.ForeignKey(
+        EmailIdRegistration,
+        related_name='collaborators_created',
+        on_delete=models.CASCADE
+    )
+    collabUserId = models.ForeignKey(
+        EmailIdRegistration,
+        related_name='collaborators_user_id',
         on_delete=models.CASCADE,
-        related_name="mobile_collaborator",
-        null=True,
-        blank=True
+        null=True
+    )
+    collaboratorName = models.CharField(max_length=100, default="")
+    groupId = models.ForeignKey(
+        Group,
+        related_name='collaborators',
+        on_delete=models.CASCADE
+    )
+    created_on = models.DateTimeField(auto_now_add=True)
+    isActive = models.BooleanField(default=False)
+    collabEmailId = models.EmailField(
+        max_length=45,
+        validators=[validate_email_regex],
+        verbose_name="Email Address"
     )
 
-    collab_google_auth_user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="google_collaborator",
-        null=True,
-        blank=True
-    )
+    requested_payment_qr_url = models.URLField(null=True, blank=True)
 
-    collaborator_name = models.CharField(max_length=50, null=True, default=None)
+    redirect_upi_url = models.URLField(null=True, blank=True)
 
     status = models.CharField(
         max_length=10,
         choices=CollaboratorStatus.choices,
-        default=CollaboratorStatus.PENDING,
-        null=True
+        default=CollaboratorStatus.PENDING
     )
+    settle_modes = models.JSONField(default=list, blank=True)
+    settle_mediums = models.JSONField(default=list, blank=True)
 
-    requested_payment_qr_url = models.TextField(null=True, blank=True)  # Was URLField
-    redirect_upi_url = models.TextField(null=True, blank=True)  # Was URLField
+    objects = models.Manager()
 
-    settle_mode = models.CharField(
-        max_length=10,
-        choices=SettleMode.choices,
-        default=SettleMode.ONLINE,
-        null=True
-    )
-
-    settle_medium = models.CharField(
-        max_length=20,
-        choices=SETTLE_MEDIUM_CHOICES,
-        default=OnlinePaymentsOptions.UPI.name,
-        null=True
-    )
-
-    group_id = models.ForeignKey(
-        'GroupExpense',
-        on_delete=models.CASCADE,
-        related_name='collaborators'
-    )
+    class Meta:
+        ordering = ['-created_on']
 
     def __str__(self):
-        user_info = self.collab_user or self.collab_google_auth_user
-        return f"Collaborator: {user_info}, Status: {self.status}"
+        return f"Collaborator({self.id})"
 
+from enum import Enum
 
+class ExpenseType(Enum):
+    SELF = 'self'
+    SHARED_EQUALLY = 'shared-equally'
+    CUSTOM_SPLIT = 'custom-split'
 
-class GroupExpense(models.Model):
-    grp_name = models.CharField(max_length=255)
-    last_settled_date_time = models.DateTimeField(null=True, blank=True)  # Optional
-    last_settled_amt = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    @classmethod
+    def choices(cls):
+        return [(tag.value, tag.name.replace('_', ' ').title()) for tag in cls]
 
-    created_by_user = models.ForeignKey(
-        EmailIdRegistration,
-        on_delete=models.CASCADE,
-        related_name="created_groups_by_mobile",
-        null=True,
-        blank=True
+class Expense(models.Model):
+    EXPENSE_TYPE_CHOICES = [
+        ('self', 'Self'),
+        ('shared-equally', 'Shared Equally'),
+        ('custom-split', 'Custom Split'),
+    ]
+
+    eName = models.CharField(max_length=100)
+    eRawAmt = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    eAmt = models.DecimalField(max_digits=10, decimal_places=2)
+    eQty = models.PositiveIntegerField(default=1)
+    eQtyUnit = models.CharField(max_length=100)
+    eDescription = models.TextField(blank=True)
+    eExpenseType = models.CharField(max_length=20, choices=ExpenseType.choices())
+    eCreationId = models.CharField(max_length=6, default="0AabB9")
+
+    addedByCollaboratorId = models.ForeignKey(
+        Collaborator,
+        related_name='expenses_added',
+        on_delete=models.CASCADE
     )
-    created_by_google_auth_user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="created_groups_by_google",
-        null=True,
-        blank=True
+    expenseForCollaborator = models.ForeignKey(Collaborator, on_delete=models.CASCADE, related_name='received_expenses',
+                                               null=True, blank=True)
+    groupId = models.ForeignKey(
+        Group,
+        related_name='group_expenses',
+        on_delete=models.CASCADE
     )
+
+    created_on = models.DateTimeField(auto_now_add=True)
+
+    objects = models.Manager()
+
+    class Meta:
+        ordering = ['-created_on']
 
     def __str__(self):
-        return self.grp_name
+        return f"{self.eName} - {self.eAmt} by {self.addedByCollaboratorId}"

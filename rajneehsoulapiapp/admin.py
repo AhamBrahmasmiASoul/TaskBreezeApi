@@ -174,14 +174,6 @@ class WeatherNotificationAdmin(admin.ModelAdmin):
     search_fields = ['info']
 
 
-@admin.register(ExpenseItem)
-class ExpenseItemAdmin(admin.ModelAdmin):
-    list_display = ('i_name', 'i_amt', 'i_qty', 'date_time', 'is_settled', 'collaborator')
-    list_filter = ('is_settled', 'date_time', 'collaborator')
-    search_fields = ('i_name', 'i_desp', 'collaborator__collab_user', 'collaborator__collab_google_auth_user')
-    date_hierarchy = 'date_time'
-
-
 class GroupExpenseAdmin(admin.ModelAdmin):
     list_display = (
         'grp_name',
@@ -202,10 +194,6 @@ class CollaboratorDetailAdmin(admin.ModelAdmin):
     )
 
 
-# Registering models with respective admin classes
-admin.site.register(CollaboratorDetail, CollaboratorDetailAdmin)
-admin.site.register(GroupExpense, GroupExpenseAdmin)
-
 @admin.register(OtpConfig)
 class OtpConfigAdmin(admin.ModelAdmin):
     list_display = (("via_mail",))
@@ -214,3 +202,52 @@ class OtpConfigAdmin(admin.ModelAdmin):
 @admin.register(ScheduleListAttachments)
 class ScheduleListAttachmentsAdmin(admin.ModelAdmin):
     list_display = ["file", "user"]
+
+@admin.register(Group)
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'created_on')
+    search_fields = ('name',)
+    list_filter = ('created_on',)
+
+@admin.register(Collaborator)
+class CollaboratorAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'groupId',
+        'createdBy',
+        'collabUserId',
+        'collaboratorName',
+        'created_on',
+        'isActive',
+        'collabEmailId',
+        'status',
+        'settle_modes',
+        'settle_mediums',
+        'requested_payment_qr_url',
+        'redirect_upi_url',
+    )
+    list_filter = (
+        'groupId',
+        'createdBy',
+        'status',
+        'settle_modes',
+        'settle_mediums',
+        'isActive',
+    )
+
+@admin.register(Expense)
+class ExpenseAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'groupId',
+        'addedByCollaboratorId',
+        'expenseForCollaborator',
+        'eExpenseType',
+        'eAmt',
+        'eName',
+        'created_on',
+        'eCreationId'
+    )
+    list_filter = ('eExpenseType', 'groupId', 'created_on', 'eCreationId')
+    search_fields = ('description', 'amount')
+    ordering = ('-created_on',)

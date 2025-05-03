@@ -1,51 +1,103 @@
 from decimal import Decimal
 
 from rest_framework import serializers
-from .models import ExpenseItem, CollaboratorDetail, GroupExpense, SettleMode, OfflinePaymentsOptions, \
-    OnlinePaymentsOptions
+from .models import Group, Collaborator
+
+from rest_framework import serializers
+from .models import Expense
+
+class ExpenseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Expense
+        fields = [
+            'id',
+            'eName',
+            'eAmt',
+            'eRawAmt',
+            'eQty',
+            'eQtyUnit',
+            'eDescription',
+            'eExpenseType',
+            'addedByCollaboratorId',
+            'expenseForCollaborator',
+            'groupId',
+            'created_on',
+            'eCreationId'
+        ]
+        read_only_fields = ['id', 'created_on']
 
 
-class ExpenseItemSerializer(serializers.ModelSerializer):
-    i_qty = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
-    i_amt = serializers.DecimalField(max_digits=10, decimal_places=2, coerce_to_string=False)
+class CollaboratorSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Collaborator model.
+    Includes all relevant fields for API interaction.
+    """
+    expenses = serializers.SerializerMethodField()
+    status = serializers.CharField(read_only=True)
+    class Meta:
+        model = Collaborator
+        fields = [
+            'id',
+            'createdBy',
+            'collabUserId',
+            'collaboratorName',
+            'groupId',
+            'created_on',
+            'isActive',
+            'collabEmailId',
+            'status',  # read-only
+            'settle_modes',
+            'settle_mediums',
+            'requested_payment_qr_url',
+            'redirect_upi_url',
+            'expenses',
+        ]
+
+    def get_expenses(self, collaborator):
+        group = collaborator.groupId
+        collaborator_id = collaborator.id
+
+        categorized_expenses = {
+            "self": [],
+            "lend": [],
+            "owe": []
+        }
+
+        expenses = Expense.objects.filter(groupId=group).order_by('-created_on')
+
+        for expense in expenses:
+            if not expense.expenseForCollaborator:
+                continue
+
+            added_by_me = expense.addedByCollaboratorId.id == collaborator_id
+            for_me = expense.expenseForCollaborator.id == collaborator_id
+
+            serialized = ExpenseSerializer(expense).data
+
+            if added_by_me and for_me:
+                categorized_expenses["self"].append(serialized)
+            elif added_by_me:
+                categorized_expenses["lend"].append(serialized)
+            elif for_me:
+                categorized_expenses["owe"].append(serialized)
+
+        return categorized_expenses
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Group model.
+    Includes nested collaborators and creator reference.
+    """
+    collaborators = CollaboratorSerializer(many=True, read_only=True)
+    createdBy = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
-        model = ExpenseItem
-        fields = '__all__'
-        #exclude = ["collaborator"]  # Exclude the collab_user field
-
-class CollaboratorDetailSerializer(serializers.ModelSerializer):
-    expenses = ExpenseItemSerializer(many=True, read_only=True)  # Existing related field
-
-    class Meta:
-        model = CollaboratorDetail
-        fields = '__all__'
-
-    def validate(self, data):
-        settle_mode = data.get('settle_mode')
-        settle_medium = data.get('settle_medium')
-
-        if settle_mode and settle_medium:
-            # ✅ ONLINE mode can't have offline mediums
-            if settle_mode == SettleMode.ONLINE:
-                if settle_medium in [opt.name for opt in OfflinePaymentsOptions]:
-                    raise serializers.ValidationError({
-                        'settle_medium': f"Invalid medium '{settle_medium}' for ONLINE settle_mode."
-                    })
-
-            # ✅ CASH mode can't have online mediums
-            elif settle_mode == SettleMode.CASH:
-                if settle_medium in [opt.name for opt in OnlinePaymentsOptions]:
-                    raise serializers.ValidationError({
-                        'settle_medium': f"Invalid medium '{settle_medium}' for CASH settle_mode."
-                    })
-
-        return data
-
-
-class GroupExpenseSerializer(serializers.ModelSerializer):
-    collaborators = CollaboratorDetailSerializer(many=True, read_only=True)  # Fetch related collaborators
-
-    class Meta:
-        model = GroupExpense
-        fields = '__all__'
+        model = Group
+        fields = [
+            'id',
+            'name',
+            'created_on',
+            'createdBy',
+            'collaborators'
+        ]

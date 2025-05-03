@@ -9,6 +9,7 @@ from rest_framework import status, serializers
 from rest_framework.authtoken.models import Token
 
 from rajneehsoulapiapp.app_utility.utils import create_response, custom_error_response
+from rajneehsoulapiapp.login.const import otp_validity_period
 from rajneehsoulapiapp.login.models import AuthToken, EmailIdRegistration
 
 
@@ -19,7 +20,7 @@ def generate_otp() -> int:
 
 def get_current_time() -> datetime:
     """Get the current local time in Asia/Kolkata timezone."""
-    return datetime.now(pytz.timezone('Asia/Kolkata'))
+    return datetime.now(pytz.timezone('Asia/Kolkata')) + timedelta(minutes= otp_validity_period)
 
 
 def handle_existing_token(auth_token_object, mobile_reg_data):
@@ -50,7 +51,7 @@ def handle_new_token(mobile_reg_data, custom_user):
     auth_token_object = AuthToken.objects.create(
         key=new_key,
         user_id=mobile_reg_data.id,
-        expires_at=timezone.now() + timedelta(hours=12)  # Set expiry time ? TO DO
+        expires_at=datetime.now(pytz.timezone('Asia/Kolkata')) + timedelta(hours=12)  # Set expiry time ? TO DO
     )
 
     custom_user.auth_token = auth_token_object  # Assuming a field exists
