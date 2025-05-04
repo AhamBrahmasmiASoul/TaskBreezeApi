@@ -5,6 +5,7 @@ from rajneehsoulapiapp.before_login.models import *
 from rajneehsoulapiapp.login.models import CustomUser, AuthToken, CustomUserProfile, IST
 from rajneehsoulapiapp.models import Content
 from rajneehsoulapiapp.schedule_list.models import ScheduleItemList, ItemType, ScheduleListAttachments
+from .address.models import Address
 from .communication.models import OtpConfig
 from .lists.split_expenses.models import *
 from .post_login.models import *
@@ -251,3 +252,10 @@ class ExpenseAdmin(admin.ModelAdmin):
     list_filter = ('eExpenseType', 'groupId', 'created_on', 'eCreationId')
     search_fields = ('description', 'amount')
     ordering = ('-created_on',)
+
+class AddressAdmin(admin.ModelAdmin):
+    list_display = ('id', 'pincode', 'address', 'user')
+    search_fields = ('pincode', 'address', 'user__emailId')  # Adjust to match your user model field for search
+    list_filter = ('user',)  # Filter by user in the admin interface
+
+admin.site.register(Address, AddressAdmin)
