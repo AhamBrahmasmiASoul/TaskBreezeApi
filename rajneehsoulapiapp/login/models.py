@@ -30,7 +30,8 @@ IST = pytz.timezone('Asia/Kolkata')
 class AuthToken(models.Model):
     user = models.ForeignKey(EmailIdRegistration, on_delete=models.CASCADE)
     key = models.CharField(verbose_name='Key', max_length=40)
-    expires_at = models.DateTimeField(default=datetime.now(pytz.timezone('Asia/Kolkata')) + timedelta(hours=12))  # Set 2 min expiry
+    expires_at = models.DateTimeField(
+        default=datetime.now(pytz.timezone('Asia/Kolkata')) + timedelta(hours=12))  # Set 2 min expiry
     objects = models.Manager()
 
     def is_expired(self) -> bool:
