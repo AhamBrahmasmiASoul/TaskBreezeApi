@@ -24,13 +24,17 @@ def send_email(user):
     email.send()
 
 
-def send_email_anonymous(email, schedule_date_time, weatherStatus):
+def send_email_anonymous(
+    task_name,
+    email,
+    schedule_date_time,
+    weatherStatus):
     subject = "Weather update on Task !!"
     from_email = settings.EMAIL_HOST_USER
     to_email = [email]
 
     task = f"""
-    ✨ Task: https://taskbreezeapi.pythonanywhere.com
+    ✨ Task: {task_name}, on {schedule_date_time}
         
     \n--> Have eyes on mentioned Weather <--\n
     """

@@ -113,7 +113,8 @@ class ScheduleItemView(APIView):
 
     def patch(self, request, item_id=None):
         """Handle PATCH requests to update a schedule item."""
-        user = self.authenticate_user(request)
+        user = request.user
+
         if not user:
             return Response({"error": "Invalid user"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -129,7 +130,8 @@ class ScheduleItemView(APIView):
 
     def delete(self, request, item_id = None):
         """Handle DELETE requests to delete a schedule item."""
-        user = self.authenticate_user(request)
+        user = request.user
+
         if not user:
             return Response({"error": "Invalid user"}, status=status.HTTP_401_UNAUTHORIZED)
 

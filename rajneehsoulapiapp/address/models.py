@@ -13,5 +13,5 @@ def validate_pincode(value):
 class Address(models.Model):
     pincode = models.CharField(max_length=6, validators=[validate_pincode])
     address = models.CharField(max_length=255)
-    user = models.ForeignKey(EmailIdRegistration, on_delete=models.CASCADE)
+    user = models.ForeignKey(EmailIdRegistration, on_delete=models.CASCADE, related_name="addresses")
 

@@ -19,5 +19,6 @@ urlpatterns = [
     path('api/list/', include('rajneehsoulapiapp.lists.split_expenses.urls')),  # Includes all app-level URLs
     path('api/communication/', include('rajneehsoulapiapp.communication.urls')),  # Includes all app-level URLs
     path('api/address/', include('rajneehsoulapiapp.address.urls')),  # Includes all app-level URLs
+    path('api/weather/', include('rajneehsoulapiapp.weather.urls')),  # Includes all app-level URLs
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -40,6 +40,7 @@ DEFAULT_FROM_EMAIL_KEY = os.getenv("default_from_key")
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv("social_auth_google_oauth2")
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET_KEY = os.getenv("social_auth_google_oauth2_secret")
 GOOGLE_CLIENT_ID_KEY = os.getenv("google_client_id")
+OPEN_WEATHER_MAP_API_KEY = os.getenv("open_weather_map_api_key")
 
 # Application definition
 
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'social_django',
     'drf_social_oauth2',
+    'jobscheduler'
 ]
 
 MIDDLEWARE = [
@@ -73,7 +75,7 @@ ROOT_URLCONF = 'rajneeshsoulapi.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'rajneehsoulapiapp/weather/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

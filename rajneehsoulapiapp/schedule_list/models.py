@@ -23,6 +23,7 @@ class ScheduleItemList(models.Model):
     subTitle = models.CharField(max_length=1000, default="Sub Title")
     isArchived = models.BooleanField(default=False)
     priority = models.IntegerField(default=0)
+    isWeatherNotifyEnabled = models.BooleanField(default=False)
 
     objects = models.Manager()
 

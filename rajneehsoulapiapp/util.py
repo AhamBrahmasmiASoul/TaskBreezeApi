@@ -14,18 +14,31 @@ def get_tokens_for_user(user):
     }
 
 
+from rest_framework import serializers
+from datetime import datetime
+from django.utils import timezone
+import pytz
+
+
 class CustomDateTimeField(serializers.DateTimeField):
     def to_representation(self, value):
-        return value.strftime('%Y-%m-%d %H:%M')  # Desired output format
+        # Convert to IST before formatting
+        ist = pytz.timezone("Asia/Kolkata")
+        value = timezone.localtime(value, ist)
+        return value.strftime('%Y-%m-%d %H:%M')
 
     def to_internal_value(self, data):
         try:
+            # Parse naive datetime
             parsed_datetime = datetime.strptime(data, '%Y-%m-%d %H:%M')
 
-            print("parsed_datetime : ", type(parsed_datetime))
-            print("timezone.now() : ", type(timezone.now()))
-            if timezone.make_aware(parsed_datetime, timezone.get_current_timezone()) <= timezone.now():
+            # Localize to IST
+            ist = pytz.timezone("Asia/Kolkata")
+            aware_datetime = ist.localize(parsed_datetime)
+
+            if aware_datetime <= timezone.now().astimezone(ist):
                 raise serializers.ValidationError("Datetime cannot be in the past.")
-            return parsed_datetime
+
+            return aware_datetime
         except ValueError:
             raise serializers.ValidationError("Invalid datetime format. Use 'YYYY-MM-DD HH:MM'.")

@@ -9,6 +9,7 @@ from .address.models import Address
 from .communication.models import OtpConfig
 from .lists.split_expenses.models import *
 from .post_login.models import *
+from .weather.models import WeatherForecast, WeatherPincodeMappedData
 
 
 @admin.register(Content)
@@ -46,7 +47,7 @@ class TokenAdmin(admin.ModelAdmin):
 
 @admin.register(ScheduleItemList)
 class ScheduleItemListAdmin(admin.ModelAdmin):
-    list_display = ['id', 'dateTime', 'title', 'lastScheduleOn', 'isItemPinned', 'subTitle', 'isArchived', 'priority', 'user_id', 'google_auth_user_id']
+    list_display = ['id', 'dateTime', 'title', 'lastScheduleOn', 'isWeatherNotifyEnabled', 'isItemPinned', 'subTitle', 'isArchived', 'priority', 'user_id', 'google_auth_user_id']
 
 
 @admin.register(CustomUserProfile)
@@ -259,3 +260,27 @@ class AddressAdmin(admin.ModelAdmin):
     list_filter = ('user',)  # Filter by user in the admin interface
 
 admin.site.register(Address, AddressAdmin)
+
+
+from django.contrib import admin
+
+@admin.register(WeatherForecast)
+class WeatherForecastAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'pincode', 'unique_key', 'timeStamp', 'forecast_time', 'weatherType', 'temperature_celsius',
+        'humidity_percent', 'scheduleItem', 'updated_count', 'notify_count',
+        'next_notify_in', 'next_notify_at', 'notify_medium',
+        'isActive', 'last_updated'
+    )
+    list_filter = ('pincode', 'weatherType', 'notify_medium', 'isActive')
+    search_fields = (
+        'pincode', 'weatherDescription', 'unique_key',
+        'scheduleItemId__title', 'scheduleItemId__subTitle'
+    )
+    ordering = ('-last_updated',)
+    readonly_fields = ('last_updated',)
+
+@admin.register(WeatherPincodeMappedData)
+class WeatherPincodeMappedDataAdmin(admin.ModelAdmin):
+    list_display = ['pincode', 'weather_data', 'last_updated', 'updated_count']
+    search_fields = ['pincode']
