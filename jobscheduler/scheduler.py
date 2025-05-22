@@ -10,7 +10,7 @@ scheduler = BackgroundScheduler()
 
 def my_scheduled_task():
     from rajneehsoulapiapp.core.perform import trigger_task
-    print(f"🔁 Running scheduled task at {datetime.now()}")
+    print("🔁 Running scheduled task at : ", datetime.now())
     trigger_task()
 
 

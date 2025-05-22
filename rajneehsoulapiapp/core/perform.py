@@ -54,7 +54,7 @@ def get_adjusted_time(
     current_time: datetime,
     time_diff
 ) -> datetime | None:
-    print(f"get_adjusted_time ~~~~~~~~~~~~~~~~> time-diff: ${time_diff}")
+    print("get_adjusted_time ~~~~~~~~~~~~~~~~> time-diff:", time_diff)
 
     if time_diff >= 3:
         td = current_time + getTimeDelta(3, TimeUnitType.Hour)
@@ -69,7 +69,7 @@ def get_adjusted_time(
         return None
 
 def get_adjusted_time_on_update(input_time: datetime, time_diff) -> datetime | None:
-    print(f"get_adjusted_time_on_update -------------------> time-diff: ${time_diff}")
+    print("get_adjusted_time_on_update -------------------> time-diff:", time_diff)
 
     if time_diff >= 3:
         td = input_time + getTimeDelta(3, TimeUnitType.Hour)
@@ -86,7 +86,7 @@ def get_adjusted_time_on_update(input_time: datetime, time_diff) -> datetime | N
 def get_time_until_update(
     time_diff
 ) -> str:
-    print(f"get_time_until_update ~~~~~~~~~~~~~~~~~> time-diff: ${time_diff}")
+    print("get_time_until_update ~~~~~~~~~~~~~~~~~> time-diff: ", time_diff)
 
     if time_diff >= 3:
         delay = getTimeDelta(3, TimeUnitType.Hour)
@@ -95,7 +95,7 @@ def get_time_until_update(
     elif time_diff >= 1:
         delay = getTimeDelta(1, TimeUnitType.Hour)
     else:
-        return f"NOTIFY BLOCKED: ${"{:.2f}".format(time_diff)}"
+        return "NOTIFY BLOCKED: ${:.2f}".format(time_diff)
 
     total_seconds = int(delay.total_seconds())
     hours = total_seconds // 3600
@@ -104,17 +104,17 @@ def get_time_until_update(
 
     parts = []
     if hours > 0:
-        parts.append(f"{hours} hr")
+        parts.append("{} hr".format(hours))
     if minutes > 0:
-        parts.append(f"{minutes} min")
+        parts.append("{} min".format(minutes))
     if seconds > 0:
-        parts.append(f"{seconds} sec")
+        parts.append("{} sec".format(seconds))
 
     return " ".join(parts) if parts else "NA"
 
 
 def get_time_until_update_on_update(time_diff) -> str:
-    print(f"get_time_until_update_on_update -------------------------> time-diff: ${time_diff}")
+    print("get_time_until_update_on_update -------------------------> time-diff: ", time_diff)
 
     if time_diff >= 3:
         delay = getTimeDelta(3, TimeUnitType.Hour)
@@ -123,7 +123,7 @@ def get_time_until_update_on_update(time_diff) -> str:
     elif time_diff >= 1:
         delay = getTimeDelta(1, TimeUnitType.Hour)
     else:
-        return f"NOTIFY BLOCKED: {"{:.2f}".format(time_diff)}"
+        return "NOTIFY BLOCKED: ${:.2f}".format(time_diff)
 
 
     total_seconds = int(delay.total_seconds())
@@ -133,11 +133,11 @@ def get_time_until_update_on_update(time_diff) -> str:
 
     parts = []
     if hours > 0:
-        parts.append(f"{hours} hr")
+        parts.append("{} hr".format(hours))
     if minutes > 0:
-        parts.append(f"{minutes} min")
+        parts.append("{} min".format(minutes))
     if seconds > 0:
-        parts.append(f"{seconds} sec")
+        parts.append("{} sec".format(seconds))
 
     return " ".join(parts) if parts else "NA"
 
@@ -270,8 +270,8 @@ def trigger_task():
 
         if pincode_weather_data:
             # print(f"weather-pinned-data: {pincode_weather_data}")
-            print(f"pincode_weather_data updated_count: {pincode_weather_data["updated_count"]}")
-            print(f"pincode_weather_data: last_updated: {pincode_weather_data["last_updated"]}")
+            print("pincode_weather_data updated_count: ", pincode_weather_data["updated_count"])
+            print("pincode_weather_data: last_updated: ", pincode_weather_data["last_updated"])
             last_updated_count = pincode_weather_data["updated_count"]
             last_updated_stored_weather_pin_data = datetime.fromisoformat(pincode_weather_data["last_updated"])
             if last_updated_stored_weather_pin_data.tzinfo is None:
@@ -280,13 +280,13 @@ def trigger_task():
             getLastUpdatedWeatherPinData = last_updated_stored_weather_pin_data.astimezone(ist)
 
             time_diff = abs((getLastUpdatedWeatherPinData - current_time).total_seconds()) / DIVISOR
-            print(f"time diff ---------------{pincode} ---- time_diff > 3.00 ------------------------> {time_diff}")
+            print("time diff ---------------{pincode} ---- time_diff > 3.00 ------------------------> ", time_diff)
 
             if time_diff > 3.00:
                 weather_forecast_data = get_weather_forcast_data_for_pin_codes([pincode])
                 update_pincode_weather_data_entry(weather_forecast_data, last_updated_count)
             else:
-                print(f"SKIP weather_forcast_data saved data updation, Time Diff :  {time_diff}")
+                print("SKIP weather_forcast_data saved data updation, Time Diff : ", time_diff)
 
         else:  # post-entry for all pincode data
             print("No data exists, Calling weather api !")
@@ -341,7 +341,7 @@ def trigger_task():
                         # Assuming the WeatherForecast model has a field like 'last_updated'
                         last_updated=now()  # Example field if you have it
                     )
-                    print(f"✅ Updated {updated_count} expired forecast(s).")
+                    print("✅ Updated expired forecast(s). updated_count : ", updated_count)
                 else:
                     print("✅ forecasts found is expired ")
             else:
@@ -370,7 +370,7 @@ def trigger_task():
 
             """ Below code start to create request body params data to create/update Weather Forecast Data."""
 
-            unique_key = f"{pincode}-{schedule_items["id"]}"
+            unique_key = "{}-{}".format(pincode, schedule_items["id"])
 
             forecast_time_dt = datetime.strptime(matched_forecast["dt_txt"], "%Y-%m-%d %H:%M:%S")
             forecast_time_ist = timezone("Asia/Kolkata").localize(forecast_time_dt)
@@ -395,21 +395,49 @@ def trigger_task():
 
                     isTimeToSendEmailWithUpdate = nextNotifyAt < current_time
                     print(
-                        f"💡 isTimeToSendEmailWithUpdate: {isTimeToSendEmailWithUpdate} | Time left : {abs(nextNotifyAt - current_time)}")
+                        "💡 isTimeToSendEmailWithUpdate: {} | Time left : {}".format(
+                            isTimeToSendEmailWithUpdate, abs(nextNotifyAt - current_time)
+                        )
+                    )
 
-                    print(f"🟣 nextNotifyAt : {nextNotifyAt} | current_time : {current_time}")
-                    print(f"🔵 nextNotifyAt : {nextNotifyAt} | revisedScheduleDateTime : {revisedScheduleDateTime}")
+                    print(
+                        "🟣 nextNotifyAt : {} | current_time : {}".format(
+                            nextNotifyAt, current_time
+                        )
+                    )
+
+                    print(
+                        "🔵 nextNotifyAt : {} | revisedScheduleDateTime : {}".format(
+                            nextNotifyAt, revisedScheduleDateTime
+                        )
+                    )
 
                     if isTimeToSendEmailWithUpdate:
                         print(
-                            f"abs(nextNotifyAt - revisedScheduleDateTime).total_seconds() : {abs(nextNotifyAt - revisedScheduleDateTime).total_seconds()}")
+                            "abs(nextNotifyAt - revisedScheduleDateTime).total_seconds() : {}".format(
+                                abs(nextNotifyAt - revisedScheduleDateTime).total_seconds()
+                            )
+                        )
+
                         print(
-                            f"abs(nextNotifyAt - revisedScheduleDateTime).total_seconds() / 60 (Mins LEFT) : {abs(nextNotifyAt - revisedScheduleDateTime).total_seconds() / 60}")
+                            "abs(nextNotifyAt - revisedScheduleDateTime).total_seconds() / 60 (Mins LEFT) : {}".format(
+                                abs(nextNotifyAt - revisedScheduleDateTime).total_seconds() / 60
+                            )
+                        )
+
                         print(
-                            f"💡 abs(nextNotifyAt - revisedScheduleDateTime).total_seconds() / 3600 (Hours LEFT) : {abs(nextNotifyAt - revisedScheduleDateTime).total_seconds() / 3600}")
+                            "💡 abs(nextNotifyAt - revisedScheduleDateTime).total_seconds() / 3600 (Hours LEFT) : {}".format(
+                                abs(nextNotifyAt - revisedScheduleDateTime).total_seconds() / 3600
+                            )
+                        )
+
                         time_diff = int(abs(nextNotifyAt - revisedScheduleDateTime).total_seconds() / DIVISOR)
+
                         print(
-                            f"time_diff to calculate next nextNotifyAt variable value by comparing to revisedScheduleDateTime : {time_diff}")
+                            "time_diff to calculate next nextNotifyAt variable value by comparing to revisedScheduleDateTime : {}".format(
+                                time_diff
+                            )
+                        )
 
                         update_request = prepare_forcast_update_request(
                             current_time=current_time,
@@ -428,13 +456,13 @@ def trigger_task():
                             "emailId": email_id,
                             "task_name": schedule_items["title"],
                             "schedule_date_time": schedule_items_date_time.strftime("%Y-%m-%dT%H:%M:%S"),
-                            "weather_status": f"{existing_weather_forecast_data.weatherType}, {existing_weather_forecast_data.weatherDescription}"
+                            "weather_status": "{}, {}".format(existing_weather_forecast_data.weatherType, existing_weather_forecast_data.weatherDescription)
                         }
                         send_weather_notification(
                             request=emailRequestBody
                         )
                     else:
-                        print(f"UPDATE update_forecast_entry: isNotifyAccountable : false")
+                        print("UPDATE update_forecast_entry: isNotifyAccountable : false")
                         update_request = prepare_forcast_update_request(
                             current_time=current_time,
                             existing_weather_forecast_data=existing_weather_forecast_data,
@@ -465,31 +493,31 @@ def trigger_task():
                 }
 
 
-                print(f"WHILE CREATE : revisedScheduleDateTime -> {revisedScheduleDateTime}")
-                print(f"WHILE CREATE : current_time -> {current_time}")
+                print("WHILE CREATE : revisedScheduleDateTime -> ", revisedScheduleDateTime)
+                print("WHILE CREATE : current_time -> ", current_time)
 
                 time_diff = abs((revisedScheduleDateTime - current_time).total_seconds()) / DIVISOR
-                print(f"WHILE CREATE : time_diff of abs((revisedScheduleDateTime - current_time) -> {time_diff}")
+                print("WHILE CREATE : time_diff of abs((revisedScheduleDateTime - current_time) -> ", time_diff)
                 time_diff = round(time_diff)
-                print(f"WHILE CREATE : round off time_diff of abs((revisedScheduleDateTime - current_time) -> {time_diff}")
+                print("WHILE CREATE : round off time_diff of abs((revisedScheduleDateTime - current_time) -> ", time_diff)
 
                 assumed_notify_time = get_adjusted_time(current_time, time_diff)
-                print(f"assumed_notify_time : {assumed_notify_time}")
+                print("assumed_notify_time : ", assumed_notify_time)
 
                 if assumed_notify_time > revisedScheduleDateTime:
-                    print(f"assumed_notify_time : {assumed_notify_time} is GREATER THAN revisedScheduleDateTime : {revisedScheduleDateTime}")
+                    print("assumed_notify_time : {assumed_notify_time} is GREATER THAN revisedScheduleDateTime : ", revisedScheduleDateTime)
                     notifyTime = revisedScheduleDateTime - timedelta(minutes=5)
-                    print(f"notify time will be less than 5 min before current time i.e {notifyTime}")
+                    print("notify time will be less than 5 min before current time i.e ", notifyTime)
                     time_diff_for_notifyIn = abs(notifyTime - current_time).total_seconds() / DIVISOR
 
                 else:
-                    print(f"notify time will be assumed_notify_time: {assumed_notify_time}")
+                    print("notify time will be assumed_notify_time: ", assumed_notify_time)
                     notifyTime = assumed_notify_time
                     time_diff_for_notifyIn = time_diff
 
-                print(f"time_diff_for_notifyIn : {time_diff_for_notifyIn}")
+                print("time_diff_for_notifyIn : ", assumed_notify_time)
                 time_diff_for_notifyIn = round(time_diff_for_notifyIn)
-                print(f"time_diff_for_notifyIn round : {time_diff_for_notifyIn}")
+                print("time_diff_for_notifyIn round : ", time_diff_for_notifyIn)
 
                 create_forecast_entry(
                     forecast_data=prepare_forcast_create_request(
